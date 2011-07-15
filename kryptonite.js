@@ -1,13 +1,20 @@
 (function($) {
-  $.kryptonite = function (url, options) {
+  $.kryptonite = function (url, opt) {
+    options = (typeof opt === "object") ? opt : {};
+    if (typeof opt === "function") {
+      options.success = opt;
+    }
     if (typeof url === "string") {
-      options = options || {};
       options.url = url;
     } else {
       options = url;
     }
     options.dataType = "kryptonite";
     $.ajax(options);
+  };
+  
+  $.kryptonite.uncomment = function (string) {
+    return string.replace(/^\s*<!--/, '').replace(/(-->\s*$)/, '');
   };
   
   $.kryptonite.handle = function (response) {
@@ -19,7 +26,8 @@
       if ($.kryptonite.options.alias[action] !== undefined) {
         action = $.kryptonite.options.alias[action];
       }
-      var content = $el.html();
+      var content = $.kryptonite.uncomment($el.html());
+      //console.log(selector, action, content);
       $(selector)[action](content);
     });
     $els.filter('script').each(function (i, $el) {
@@ -35,6 +43,7 @@
     },
     defaultAction: 'replaceContent'
   };
+  
 
   $.ajaxSetup({
     converters: {
