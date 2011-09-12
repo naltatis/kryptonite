@@ -18,6 +18,10 @@
   };
   
   $.kryptonite.handle = function (response) {
+    // adding html5 tag support for older browsers
+    if (typeof $.innerShiv === 'function') {
+      response = $.innerShiv(response, false);
+    }
     var $els = $(response);
     $els.filter('section').each(function (i, el) {
       var $el = $(el);
