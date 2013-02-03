@@ -1,17 +1,15 @@
 <section data-selector=".test1">
-    test1 replaced
+  test1 replaced
 </section>
 
 <section data-selector=".test2" data-action="replace">
-    <div class="test2">test2 replaced</div>
+  <div class="test2">test2 replaced</div>
 </section>
 
 <section data-selector="table tbody tr" data-action="replaceContent">
-    <!--
-        <td>some tags have to be transported in comments because they are not allowed inside a section tag</td>
-    -->
+  <!--
+    <td>some tags have to be transported in comments because they are not allowed inside a section tag</td>
+  -->
 </section>
 
-<script>
-    console.log("script");
-</script>
+<section data-eval="console.log('Hello World')" />

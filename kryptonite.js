@@ -1,6 +1,11 @@
+
 (function($) {
-  $.kryptonite = function (url, opt) {
-    options = (typeof opt === "object") ? opt : {};
+  "use strict";
+
+  var log;
+  $.kryptonite = function(url, opt) {
+    var options;
+    options = typeof opt === "object" ? opt : {};
     if (typeof opt === "function") {
       options.success = opt;
     }
@@ -10,48 +15,86 @@
       options = url;
     }
     options.dataType = "kryptonite";
-    $.ajax(options);
+    return $.ajax(options);
   };
-  
-  $.kryptonite.uncomment = function (string) {
-    return string.replace(/^\s*<!--/, '').replace(/(-->\s*$)/, '');
-  };
-  
-  $.kryptonite.handle = function (response) {
-    // adding html5 tag support for older browsers
-    if (typeof $.innerShiv === 'function') {
-      response = $.innerShiv(response, false);
-    }
-    var $els = $(response);
-    $els.filter('section').each(function (i, el) {
-      var $el = $(el);
-      var selector = $el.attr('data-selector');
-      var action = $el.attr('data-action') || $.kryptonite.options.defaultAction;
-      if ($.kryptonite.options.alias[action] !== undefined) {
+  $.kryptonite.handle = function(response) {
+    var $els;
+    log.start();
+    $els = $($.parseHTML(response));
+    $els.filter("[data-selector]").each(function(i, el) {
+      var $el, action, content, selector;
+      $el = $(el);
+      selector = $el.attr("data-selector");
+      action = $el.attr("data-action") || $.kryptonite.options.defaultAction;
+      if ($.kryptonite.options.alias[action] != null) {
         action = $.kryptonite.options.alias[action];
       }
-      var content = $.kryptonite.uncomment($el.html());
-      //console.log(selector, action, content);
+      content = $el.html();
+      if ($.kryptonite.options.uncomment) {
+        content = $.kryptonite.uncomment(content);
+      }
+      $(selector).trigger("before:kryptonite", action);
+      log.action(selector, action, content);
       $(selector)[action](content);
+      return $(selector).trigger("after:kryptonite", action);
     });
-    $els.filter('script').each(function (i, $el) {
-      $("body").append($el);
+    $els.filter("[data-eval]").each(function(i, el) {
+      var script;
+      script = $(el).data("eval");
+      log["eval"](script);
+      return $.globalEval(script);
     });
     return response;
   };
-  
   $.kryptonite.options = {
+    debug: false,
+    uncomment: true,
     alias: {
-      'replace': 'replaceWith',
-      'replaceContent': 'html'
+      replace: "replaceWith",
+      replaceContent: "html"
     },
-    defaultAction: 'replaceContent'
+    defaultAction: "replaceContent"
   };
-  
-
   $.ajaxSetup({
     converters: {
       "text kryptonite": $.kryptonite.handle
     }
   });
-}(jQuery));
+  $.kryptonite.uncomment = function(string) {
+    var result;
+    result = string.match(/^\s*<!--(((?!-->).)*)-->\s*$/);
+    if (result) {
+      return result[1];
+    } else {
+      return string;
+    }
+  };
+  return log = {
+    action: function(selector, action, content) {
+      if ($.kryptonite.debug) {
+        console.log("---");
+        console.log("selector '" + selector + "' -> " + ($(selector).size()) + " matches");
+        if ($(selector).size() > 0) {
+          console.log.apply(console, $(selector));
+          return console.log("$('" + selector + "')." + action + "('" + content + "');");
+        }
+      }
+    },
+    "eval": function(script) {
+      if ($.kryptonite.debug) {
+        console.log("---");
+        return console.log("evaluating script '" + script + "'");
+      }
+    },
+    start: function() {
+      if ($.kryptonite.debug) {
+        return console.log(">>> kryptonite start");
+      }
+    },
+    end: function() {
+      if ($.kryptonite.debug) {
+        return console.log("<<< kryptonite end");
+      }
+    }
+  };
+})(jQuery);

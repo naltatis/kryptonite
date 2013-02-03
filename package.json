@@ -1,0 +1,27 @@
+{
+  "name": "kryptonite",
+  "version": "1.0.0",
+  "description": "replacing multiple dom elements with one ajax request",
+  "main": "kryptonite.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/naltatis/kryptonite.git"
+  },
+  "keywords": [
+    "jquery",
+    "ajax",
+    "templating"
+  ],
+  "author": "naltatis",
+  "license": "MIT",
+  "gitHead": "1ca0f0a5bf0e648115658b45fc9b2b0109d32baa",
+  "devDependencies": {
+    "grunt": "~0.4.0rc7",
+    "grunt-contrib-uglify": "~0.1.1rc6",
+    "grunt-contrib-coffee": "~0.4.0rc7",
+    "grunt-contrib-watch": "~0.2.0rc7"
+  }
+}
